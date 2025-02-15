@@ -1,98 +1,74 @@
 package webservices;
 
-import metiers.LogementBusiness;
 import entities.Logement;
+import metiers.LogementBusiness;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.OPTIONS;
 
-@Path("/logement")
+@Path("/logements")
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 public class LogementRessources {
-
-    LogementBusiness help = new LogementBusiness();
-
+    LogementBusiness Helper = new LogementBusiness();
 
     @GET
-    @Path("/all")
-    @Produces(MediaType.APPLICATION_JSON)
     public Response getAllLogements() {
-        List<Logement> logements = help.getLogements();
-        return Response
-                .status(200)
-                .entity(logements.isEmpty() ? null : logements)
-                .build();
+        List<Logement> logements = Helper.getLogements();
+        return Response.status(200).header("Access-Control-Allow-Origin", "*")
+
+                .entity(logements).
+                build();
     }
 
     @GET
-    @Path("/helloLogement")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response sayHello() {
-        return Response
-                .status(200)
-                .entity("Welcome to Logement !")
-                .build();
-    }
+    @Path("/{reference}")
+    public Response getLogementByReference(@PathParam("reference") int reference) {
+        Logement logement = Helper.getLogementsByReference(reference);
 
-    @GET
-    @Path("/details/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getLogementDetails(@PathParam(value = "id") int id) {
-        Logement logement = help.getLogementsByReference(id);
-        if (logement != null) {
-            return Response
-                    .status(200)
-                    .entity(logement)
-                    .build();
-        }
-        return Response
-                .status(200)
-                .build();
-    }
-
-    @GET
-    @Path("/list/{deleguation}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getLogementsByDeleguation(@PathParam(value = "deleguation") String deleguation) {
-        List<Logement> logements = help.getLogementsByDeleguation(deleguation);
-        return Response
-                .status(200)
-                .entity(logements.isEmpty() ? null : logements)
+        return Response.status(200)
+                .header("Access-Control-Allow-Origin", "*")
+                .entity(logement)
                 .build();
     }
 
     @POST
-    @Path("/add")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
     public Response addLogement(Logement logement) {
-        boolean added = help.addLogement(logement);
-        return Response
-                .status(200)
-                .entity(added ? "Logement added successfully" : "Failed to add logement")
+        boolean added = Helper.addLogement(logement);
+
+        return Response.status(200)
+                .header("Access-Control-Allow-Origin", "*")
+                .header("Access-Control-Allow-Headers", "origin, content-type, accept, authorization")
+                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD")
+                .entity("Logement ajouté avec succès !")
                 .build();
+
     }
 
     @PUT
-    @Path("/update/{reference}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response updateLogement(@PathParam(value = "reference") int reference, Logement logement) {
-        boolean updated = help.updateLogement(reference, logement);
-        return Response
-                .status(200)
-                .entity(updated ? "Logement updated successfully" : "Logement not found for update")
+    @Path("/{reference}")
+    public Response updateLogement(@PathParam("reference") int reference, Logement logement) {
+        boolean updated = Helper.updateLogement(reference, logement);
+
+        return Response.status(200).header("Access-Control-Allow-Origin", "*")
+                .entity("Logement mis à jour avec succès !")
                 .build();
+
     }
 
-    @DELETE
-    @Path("/delete/{reference}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response deleteLogement(@PathParam(value = "reference") int reference) {
-        boolean deleted = help.deleteLogement(reference);
-        return Response
-                .status(200)
-                .entity(deleted ? "Logement deleted successfully" : "Logement not found for deletion")
+    @GET
+    @Path("/delegation/{delegation}")
+    public Response getLogementsByDelegation(@PathParam("delegation") String delegation) {
+        List<Logement> logements = Helper.getLogementsByDeleguation(delegation);
+
+        return Response.status(200).header("Access-Control-Allow-Origin", "*")
+                .entity(logements)
                 .build();
+
+
     }
 }
